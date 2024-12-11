@@ -1,0 +1,50 @@
+{
+   "Vector3": {
+      "prefix": "vec3",
+      "body": "vectors.vec3($1)"
+   },
+   "Vector2": {
+      "prefix": "vec2",
+      "body": "vectors.vec2($1)"
+   },
+   "Matrix3": {
+      "prefix": "mat3",
+      "body": "vectors.mat3($1)"
+   },
+   "Matrix4": {
+      "prefix": "mat4",
+      "body": "vectors.mat4($1)"
+   },
+   "Quaternion": {
+      "prefix": "quat",
+      "body": "vectors.quat($1)"
+   },
+   "gnui": {
+      "prefix": "include gnui",
+      "body": "local gnui = require(\"GNUI.main\")\n$1"
+   },
+   "tween": {
+      "prefix": "include tween",
+      "body": "local tween = require(\"libraries.GNTweenLib\")\n$1"
+   },
+   "eventLib": {
+      "prefix": "include eventLib",
+      "body": "local eventLib = require(\"libraries.eventLib\")\n$1"
+   },
+   "benchmark": {
+      "prefix": "benchmark",
+      "body": [
+         "local benchmark = -avatar:getCurrentInstructions()",
+         "${1:host:setActionbar(('Instructions: %s'):format(benchmark+avatar:getCurrentInstructions()))}"
+      ]
+   },
+   "inheritance_fix": {
+      "prefix": "generic",
+      "body": [
+         "---@generic self",
+         "---@param self self",
+         "---@return self",
+         "---@cast self ${1}",
+      ]
+   }
+}
