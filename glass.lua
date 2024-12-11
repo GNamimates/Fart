@@ -1,14 +1,10 @@
 
-local GLASS_SCALE_WORLD = 0.8
-local GLASS_SCALE_1ST_PERSON = 1
-local GLASS_SCALE_ITEM = 1
-local GLASS_SCALE_3RD_PERSON = 1.5
 
 local SOURCE_MODEL = models.glasses
 :setParentType("SKULL")
 
 
----@alias Glass.Types "Delmonico"
+---@alias Glass.Types "Delmonico"|"Wine"|"Shot"|"Mug"|"Stange"
 ---@class GlassRegistry
 ---@field types table<string, Glass>
 local GlassRegistry = {types = {}}
@@ -83,16 +79,20 @@ events.SKULL_RENDER:register(function (delta, block, item, entity, ctx)
    if ctx:find("^FIRST") then
       local name = item:getName()   
       SOURCE_MODEL
-      :setScale(GLASS_SCALE_1ST_PERSON)
+      :setScale(1)
       :setRot()
+      :setPos(0,3,0)
    elseif ctx:find("^THIRD") then
       SOURCE_MODEL
-      :setScale(GLASS_SCALE_3RD_PERSON)
+      :setScale(1.5)
       :setRot(-30,45,-40)
+      :setPos(0,2,0)
    elseif ctx == "OTHER" then
-   SOURCE_MODEL:setScale(GLASS_SCALE_ITEM)
+      SOURCE_MODEL:setScale(1)
+      :setRot():setPos()
    elseif block then
-      SOURCE_MODEL:setScale(GLASS_SCALE_WORLD)
+      SOURCE_MODEL:setScale(0.8)
+      :setRot():setPos()
    end
 end)
 
