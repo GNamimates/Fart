@@ -3,6 +3,12 @@
 local MODEL_GLASSWARE = models.glasses
 :setParentType("SKULL")
 
+local spring = require"lib.spring"
+local sneakSpring = spring.new({
+   f = 2,
+   z = 0.3,
+   r = -0.5,
+})
 
 ---@alias Glass.Types "Delmonico"|"Wine"|"Shot"|"Mug"|"Stange"
 ---@class GlassRegistry
@@ -81,13 +87,25 @@ end
 
 events.SKULL_RENDER:register(function (delta, block, item, entity, ctx)
    if ctx:find("^FIRST") then
-      local crot = client:getCameraRot()
-      local left = ctx:find("LEFT_HAND$") and -1 or 1
-      local state = math.clamp(crot.x/-45,0,1)
-      MODEL_GLASSWARE
-      :setScale(1)
-      :setRot(math.lerp(vec(0,0,0),vec(-45,0,0),state))
-      :setPos(math.lerp(vec(0,3,0),vec(9*left,7,4),state))
+      if player:isLoaded() then
+         local crot = client:getCameraRot()
+         local left = ctx:find("LEFT_HAND$") and -1 or 1
+         local state = math.clamp(crot.x/-45,0,1)
+         sneakSpring.target = player:isSneaking() and 1 or 0
+         MODEL_GLASSWARE:setScale()
+         :setRot(
+            math.lerp(
+               math.lerp(vec(-20,45,-20),vec(-45,0,0),state),
+               vec(-crot.x,0,0),
+               sneakSpring.pos
+            )
+         )
+         :setPos(math.lerp(
+            math.lerp(vec(0,3,0),vec(9*left,7,4),state),
+            vec(9*left,8+8*(1-math.cos(math.rad(crot.x))),10),
+            sneakSpring.pos
+         ))
+      end
    elseif ctx:find("^THIRD") then
       MODEL_GLASSWARE
       :setScale(1.5)

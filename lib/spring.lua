@@ -51,10 +51,12 @@ function Spring.new(cfg)
 	return s
 end
 
+local lastSystemTime = client:getSystemTime()
+models:newPart("spring","World").preRender = function (delta, context, part)
+   local systemTime = client:getSystemTime()
+   local t = math.min((systemTime - lastSystemTime) / 1000,0.1)
+   lastSystemTime = systemTime
 
-
-function Spring.update(t)
-	t = math.min(t, 0.1)
 	local s = first
 	while s do
 		
