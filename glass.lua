@@ -1,6 +1,6 @@
 
 
-local SOURCE_MODEL = models.glasses
+local MODEL_GLASSWARE = models.glasses
 :setParentType("SKULL")
 
 
@@ -24,51 +24,55 @@ GlassRegistry.__index = GlassRegistry
 
 
 -- Scan the source model
-for _, glass in pairs(SOURCE_MODEL:getChildren()) do
+for _, glass in pairs(MODEL_GLASSWARE:getChildren()) do
    -- Register a glass
    local glassType = {}
    
    local name = glass:getName()
    local modelGlass = glass
-   local modelFluid = modelGlass[name.."Fluid"]
    
    -- Cache vertex position data for later use
-   local fluids = {}
-   for key, child in pairs(modelFluid:getChildren()) do
-      local expression = loadstring("return "..child:getName())
-      local vertMovable = {}
-      local vertPos = {}
-      
-      -- Gather the vertices at the top of cubes
-      if child:getType() == "CUBE" then
-         local vertices = select(2,next(child:getAllVertices()))
-         local function addVert(id)
-            local i = #vertMovable+1
-            vertMovable[i],vertPos[i] = vertices[id],vertices[id]:getPos()
+
+   local fluid
+   for key, child in pairs(modelGlass:getChildren()) do
+      local childName = child:getName()
+      if childName:find("^fluid") then
+         local expression = loadstring("return "..child:getName())
+         local vertMovable = {}
+         local vertPos = {}
+         
+         -- Gather the vertices at the top of cubes
+         if child:getType() == "CUBE" then
+            local vertices = select(2,next(child:getAllVertices()))
+            local function addVert(id)
+               local i = #vertMovable+1
+               vertMovable[i],vertPos[i] = vertices[id],vertices[id]:getPos()
+            end
+            -- Sides
+            for i = 3, 15, 4 do
+               addVert(i)
+               addVert(i+1)
+            end
+            -- Top faces
+            addVert(17)
+            addVert(18)
+            addVert(19)
+            addVert(20)
          end
-         -- Sides
-         for i = 3, 15, 4 do
-            addVert(i)
-            addVert(i+1)
-         end
-         -- Top faces
-         addVert(17)
-         addVert(18)
-         addVert(19)
-         addVert(20)
+         
+         -- Save the data to the fluid property
+         fluid = {
+            expression = expression,
+            model = child,
+            vertMovable = vertMovable,
+            vertPos = vertPos
+         }
+         break
       end
-      
-      -- Save the data to the fluid property
-      fluids[#fluids+1] = {
-         expression = expression,
-         model = child,
-         vertMovable = vertMovable,
-         vertPos = vertPos
-      }
    end
    glassType.name = name
    glassType.modelGlass = modelGlass
-   glassType.fluids = fluids
+   glassType.fluid = fluid
    
    GlassRegistry.types[name] = glassType
 end
@@ -77,23 +81,24 @@ end
 
 events.SKULL_RENDER:register(function (delta, block, item, entity, ctx)
    if ctx:find("^FIRST") then
-      local name = item:getName()   
-      SOURCE_MODEL
+      local crot = client:getCameraRot()
+      local left = ctx:find("LEFT_HAND$") and -1 or 1
+      local state = math.clamp(crot.x/-45,0,1)
+      MODEL_GLASSWARE
       :setScale(1)
-      :setRot()
-      :setPos(0,3,0)
+      :setRot(math.lerp(vec(0,0,0),vec(-45,0,0),state))
+      :setPos(math.lerp(vec(0,3,0),vec(9*left,7,4),state))
    elseif ctx:find("^THIRD") then
-      SOURCE_MODEL
+      MODEL_GLASSWARE
       :setScale(1.5)
       :setRot(-30,45,-40)
       :setPos(0,2,0)
    elseif ctx == "OTHER" then
-      SOURCE_MODEL:setScale(1)
+      MODEL_GLASSWARE:setScale(1)
       :setRot():setPos()
    elseif block then
-      SOURCE_MODEL:setScale(0.8)
-      :setRot():setPos()
    end
+   MODEL_GLASSWARE:setVisible(not block and true or false)
 end)
 
 return GlassRegistry

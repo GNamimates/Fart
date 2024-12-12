@@ -1,3 +1,3 @@
 require"player"
-
-local glass = require"glass"
+require"glass"
+require"dispenser"
