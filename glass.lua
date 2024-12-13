@@ -10,6 +10,9 @@ local sneakSpring = spring.new({
    r = -0.5,
 })
 
+local fluidSpringX = spring.new({f = 2,z = 0.1,r = -0.5,})
+local fluidSpringY = spring.new({f = 2,z = 0.1,r = -0.5,})
+
 ---@alias Glass.Types "Delmonico"|"Wine"|"Shot"|"Mug"|"Stange"
 ---@class GlassRegistry
 ---@field types table<string, Glass>
@@ -91,7 +94,11 @@ events.SKULL_RENDER:register(function (delta, block, item, entity, ctx)
          local crot = client:getCameraRot()
          local left = ctx:find("LEFT_HAND$") and -1 or 1
          local state = math.clamp(crot.x/-45,0,1)
+         
          sneakSpring.target = player:isSneaking() and 1 or 0
+         fluidSpringX.target = crot.x
+         fluidSpringY.target = crot.y
+         
          MODEL_GLASSWARE:setScale()
          :setRot(
             math.lerp(
